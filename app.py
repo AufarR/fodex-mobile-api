@@ -15,7 +15,7 @@ def connect_db():
         print(e)
     return conn
   
-@app.route('/upload', methods = ['POST'])
+@app.route('/fodex/upload', methods = ['POST'])
 def upload():
     try:
         if 'file' not in request.files:
@@ -29,7 +29,7 @@ def upload():
         print(e)
     return "Upload failed",400
 
-@app.route('/download/<filename>', methods = ['GET'])
+@app.route('/fodex/download/<filename>', methods = ['GET'])
 def download(filename):
     try:
         if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
@@ -45,7 +45,7 @@ def download(filename):
     return "Not found",404
 
         
-@app.route('/akun', methods = ['POST','PUT','PATCH'])
+@app.route('/fodex/akun', methods = ['POST','PUT','PATCH'])
 def akun():
     try:
         if request.method == 'POST': # Handle login + get profile
@@ -121,7 +121,7 @@ def akun():
     db.close()
     return "Error", 400
 
-@app.route('/kurir', methods = ['GET','POST','PATCH'])
+@app.route('/fodex/kurir', methods = ['GET','POST','PATCH'])
 def kurir():
     try:
         if request.method == 'GET': # Handle get info
@@ -226,7 +226,7 @@ def kurir():
     db.close()
     return "Error kurir", 400
 
-@app.route('/paket', methods = ['GET','POST','PATCH'])
+@app.route('/fodex/paket', methods = ['GET','POST','PATCH'])
 def paket():
     try:
         if request.method == 'GET': # Handle get info
@@ -308,7 +308,7 @@ def paket():
     db.close()
     return "Error paket", 400
 
-@app.route('/bunga', methods = ['GET','POST','PATCH'])
+@app.route('/fodex/bunga', methods = ['GET','POST','PATCH'])
 def bunga():
     try:
         if request.method == 'GET': # Handle get info
@@ -337,7 +337,8 @@ def bunga():
                     'harga': data[4],
                     'komposisi': data[5],
                     'deskripsi': data[6],
-                    'foto': data[7]
+                    'foto': data[7],
+                    'stok': data[8]
                 }
             else:
                 dataList = []
@@ -351,19 +352,20 @@ def bunga():
                             'harga': k[4],
                             'deskripsi': k[5],
                             'komposisi': k[6],
-                            'foto': k[7]
+                            'foto': k[7],
+                            'stok': k[8]
                         }
                     )
                 return dataList
             
         elif request.method == 'POST': # Handle new bunga
             db = connect_db()
-            query = db.execute(f"insert into bunga (akun, nama, jenis, harga, deskripsi, komposisi, foto) values ('{request.form['akun']}', '{request.form['nama']}', '{request.form['jenis']}', {request.form['harga']}, '{request.form['deskripsi']}', '{request.form['komposisi']}', '{request.form['foto']}');")
+            query = db.execute(f"insert into bunga (akun, nama, jenis, harga, deskripsi, komposisi, foto, stok) values ('{request.form['akun']}', '{request.form['nama']}', '{request.form['jenis']}', {request.form['harga']}, '{request.form['deskripsi']}', '{request.form['komposisi']}', '{request.form['foto']}', '{request.form['stok']}');")
             db.commit()
             db.close()
             return "Success", 201
         
-        elif request.method == 'PATCH': # Handle kurir updates
+        elif request.method == 'PATCH': # Handle bunga updates
             db = connect_db()
             if 'id' not in request.form:
                 raise Exception("No ID supplied")
@@ -401,6 +403,12 @@ def bunga():
                 db.execute(
                     "update bunga " +
                     f"set foto = \"{request.form['foto']}\"" +
+                    f" where id = {request.form['id']};"
+                )
+            if 'stok' in request.form:
+                db.execute(
+                    "update bunga " +
+                    f"set stok = {request.form['stok']}" +
                     f" where id = {request.form['id']};"
                 )
             db.commit()
