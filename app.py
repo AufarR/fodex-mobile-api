@@ -1,4 +1,4 @@
-from flask import Flask,jsonify,request,Response
+from flask import Flask,jsonify,request,Response, send_file
 import sqlite3
 import os
 import hashlib
@@ -27,7 +27,23 @@ def upload():
         return filename, 201
     except Exception as e:
         print(e)
-    return "",400
+    return "Upload failed",400
+
+@app.route('/download/<filename>', methods = ['GET'])
+def download(filename):
+    try:
+        if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+            return send_file(
+                os.path.join(app.config['UPLOAD_FOLDER'], filename),
+                download_name=filename,
+                as_attachment=True
+            )
+        else:
+            raise Exception("Path invalid")
+    except Exception as e:
+        print(e)
+    return "Not found",404
+
         
 @app.route('/akun', methods = ['POST','PUT','PATCH'])
 def akun():
