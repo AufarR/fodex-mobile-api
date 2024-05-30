@@ -133,7 +133,8 @@ def kurir():
                     'nopol': data[3],
                     'no_telp': data[4],
                     'status': data[5],
-                    'foto': data[6]
+                    'foto': data[6],
+                    'jk': data[7]
                 }
             else:
                 dataList = []
@@ -146,14 +147,15 @@ def kurir():
                             'nopol': k[3],
                             'no_telp': k[4],
                             'status': k[5],
-                            'foto': k[6]
+                            'foto': k[6],
+                            'jk': k[7]
                         }
                     )
                 return dataList
             
         elif request.method == 'POST': # Handle new kurir
             db = connect_db()
-            query = db.execute(f"insert into kurir (akun, nama, nopol, no_telp, status, foto) values ('{request.form['akun']}', '{request.form['nama']}', '{request.form['nopol']}', '{request.form['no_telp']}', '{request.form['status']}', '{request.form['foto']}')")
+            query = db.execute(f"insert into kurir (akun, nama, nopol, no_telp, status, foto, jk) values ('{request.form['akun']}', '{request.form['nama']}', '{request.form['nopol']}', '{request.form['no_telp']}', '{request.form['status']}', '{request.form['foto']}', '{request.form['jk']}')")
             db.commit()
             db.close()
             return "Success", 201
@@ -190,6 +192,12 @@ def kurir():
                 db.execute(
                     "update kurir " +
                     f"set foto = \"{request.form['foto']}\"" +
+                    f" where id = {request.form['id']};"
+                )
+            if 'jk' in request.form:
+                db.execute(
+                    "update kurir " +
+                    f"set jk = {request.form['jk']}" +
                     f" where id = {request.form['id']};"
                 )
             db.commit()
